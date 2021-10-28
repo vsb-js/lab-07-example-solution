@@ -1,0 +1,29 @@
+{
+  "name": "lab-07-example-solution",
+  "version": "1.0.0",
+  "description": "You know a lot of information from previous labs, so now you can shine and show yourself. \r You can use some data from [free API](https://github.com/public-apis/public-apis) - and use it to fill your DB.",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vsb-js/lab-07-example-solution.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/vsb-js/lab-07-example-solution/issues"
+  },
+  "homepage": "https://github.com/vsb-js/lab-07-example-solution#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "sequelize": "^6.8.0",
+    "sqlite3": "^5.0.2"
+  },
+  "devDependencies": {
+    "sequelize-cli": "^6.2.0"
+  }
+}
