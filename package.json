@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "You know a lot of information from previous labs, so now you can shine and show yourself. \r You can use some data from [free API](https://github.com/public-apis/public-apis) - and use it to fill your DB.",
   "main": "index.js",
-  "type": "module",
   "scripts": {
     "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"

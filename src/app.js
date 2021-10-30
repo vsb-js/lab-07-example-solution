@@ -1,94 +1,107 @@
-import express from 'express'
-
-import * as User from "../models/user.js"
+const express = require("express");
+const db = require("../models/index");
 
 const app = express()
 
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({extended: true}));
 
 
+app.get('/all', async (req, res) => {
 
-// this is the simpliest example - if you go to the localhost:3000, if show you "Hello world"
-app.get('/users', async (req, res) => {
+    // get all values in users table
+    const users = await db.User.findAll();
+    // get all values in the cars table
+    const cars = await db.Car.findAll();
 
+    // TIP: btw we could improve response time by using promise.all and call them at the same time ...
+    // TIP: We should wrap all of this to try{} catch to properly catch all the errors
 
-  const users = await User.findAll()
-
-  res.send(JSON.stringify(users))
-})
-
-
-app.post('/users/create', async (req, res) => {
-  const data = req.body
-  console.log(data)
-
-  await User.create(data).then((user) => {
-    res.status(200);
-    res.json({ success: "OK", data: { user } });
-  }).catch((e) => {
-    console.log(e)
-    res.status(500);
-    res.send("Something wrong happens!")
-  });
+    // Send the response back
+    res.json({
+        cars: cars,
+        users: users
+    });
 })
 
 app.get('/users/', async (req, res) => {
-  await User.findAll().then((users) => {
-    console.log(users)
-    res.json(users)
-  }).catch((error) => {
-    res.send(error)
-  });
+    // Another way we could write the promise without the ASYNC AWAIT
+    db.User.findAll().then((users) => {
+        res.json(users)
+    }).catch((error) => {
+        res.send(error)
+    });
+})
+
+// Parametrized query
+app.get('/users/:id', async (req, res) => {
+
+    // the param id is in req.params.id
+    // we could do this "trick" to get it out
+
+    const {id} = req.params;
+
+    // FindAll always returns a array!!
+    let users = await db.User.findAll({
+        where: {
+            id: id
+        }
+    });
+
+    // it's up to us as we write up our API, if we specify this returns array we can be fine
+    // or we could return just one record || think what happens when no user is find
+    res.json(users[0])
 })
 
 
-// TASK 1: Create model for PLANETS in file ./models/planet.js
-// check ./models/user.js as example how to do it
-// Check DB for schema - it should match.
-// and import it to this file
+// Best simulated with POSTMAN or other tool see https://github.com/vsb-js/forum-2021-winter/discussions/13
+app.post('/users/create', async (req, res) => {
+    const data = req.body
+    console.debug("Body request:")
+    console.debug(data)
 
+    try {
+        const createdUser = await db.User.create(data);
+        res.status(200);
+        res.json({success: "OK", data: {createdUser}});
+    } catch (e) {
+        console.error(e)
+        // Check the proper response codes https://www.restapitutorial.com/lessons/httpmethods.html
+        res.status(500);
+        res.send("Something wrong happens!")
+    }
 
+});
 
+// we are using delete HTTP method
+// See https://github.com/vsb-js/forum-2021-winter/discussions/13
+app.delete('/users/:id', async (req, res) => {
 
-// TASK 2: Create endpoint for creating new planet
-// ADD new planet into DB
-// If success, return json {success: "OK", data: { new planet}}
-// Catch all errors
-app.post('/planets/create', async (req, res) => {
+    // the param id is in req.params.id
+    // we could do this "trick" to get it out
+
+    const {id} = req.params;
+
+    try {
+        await db.User.destroy({
+            where: {
+                id: id
+            }
+        });
+
+        // we could send confirmation that user was correctly delete
+        res.json({success: "OK"});
+    } catch (e) {
+        console.error(e)
+        // Check the REST API documentation what should be the desired reponse code https://www.restapitutorial.com/lessons/httpmethods.html
+        res.status(500);
+        res.send("Something wrong happens!")
+    }
 
 })
 
-
-// TASK 3: Create endpoint for reading all planets
-// Read all planets from DB
-// If success, return array of objects
-// Catch all errors
-app.get('/planets/', async (req, res) => {
-
-})
-
-// TASK 4: Create endpoint for returning specific planets with terrain
-// Read specific planets from DB
-// you need to find terrain in the string! 
-// Examples /planets/terrain/mountains -> returns 4 planets
-//          /planets/terrain/ocean -> returns 1 planet
-//          /planet/terrain/grassy-hills -> returns 1 planet
-// Return  array of objects (can be array with one item)
-// Catch all errors
-app.get('/planets/terrain/:terrain', async (req, res) => {
-
-})
-
-// TASK 5: Create endpoint for deleting planet
-// Delete planet in DB
-// return json { deleted: "OK", data: {deleted_planet}}
-// Catch all errors
-app.get('/planets/delete/:id', async (req, res) => {
-
-})
 
 // this only show that it listen on port 3000.
 
 
-export { app };
+module.exports = {app};
